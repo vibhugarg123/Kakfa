@@ -71,6 +71,7 @@ public class ConsumerDemoWithThreads {
                 logger.info("Caught shutdown hook");
                 ((ConsumerRunnable) myConsumerRunnable).shutdown();
                 try {
+                    //this shutdown hooks does not close too quickly
                     latch.await();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
