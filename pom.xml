@@ -6,7 +6,11 @@
 
     <groupId>com.github.onsvg</groupId>
     <artifactId>Kafka-beginners-course</artifactId>
+    <packaging>pom</packaging>
     <version>0.0.1</version>
+    <modules>
+        <module>kafka-basics</module>
+    </modules>
 
     <dependencies>
         <dependency>
