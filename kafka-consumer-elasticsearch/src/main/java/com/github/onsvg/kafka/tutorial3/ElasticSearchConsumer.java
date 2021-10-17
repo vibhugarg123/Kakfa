@@ -1,5 +1,6 @@
 package com.github.onsvg.kafka.tutorial3;
 
+import com.google.gson.JsonParser;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -29,6 +30,7 @@ import java.util.Properties;
 public class ElasticSearchConsumer {
 
     public static final Logger logger = LoggerFactory.getLogger(ElasticSearchConsumer.class.getName());
+    private static final JsonParser jsonParser = new JsonParser();
 
     public static RestHighLevelClient createClient() {
 
@@ -69,6 +71,14 @@ public class ElasticSearchConsumer {
         return consumer;
     }
 
+
+    private static String extractIdFromTweet(String tweetJson) {
+        return jsonParser.parse(tweetJson)
+                .getAsJsonObject()
+                .get("id_str")
+                .getAsString();
+    }
+
     public static void main(String[] args) throws IOException {
         RestHighLevelClient client = createClient();
 
@@ -79,18 +89,22 @@ public class ElasticSearchConsumer {
                     consumer.poll(Duration.ofMillis(100));// timeout of 100 millis
 
             for (ConsumerRecord<String, String> record : records) {
+                //Extract is from tweetJson for making idempotent consumer
+                //Make it as twitter feed specific id
+                String id = extractIdFromTweet(record.value());
+
                 //insert data into elastic search
 
                 //It will fail if twitter index does not exist
                 IndexRequest indexRequest = new IndexRequest(
                         "twitter",
-                        "tweets"
+                        "tweets",
+                        id
                 ).source(record.value(), XContentType.JSON);
 
                 IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
 
-                String id = indexResponse.getId();
-                logger.info(id);
+                logger.info(indexResponse.getId());
                 try {
                     Thread.sleep(1000); //introduce a small delay
                 } catch (InterruptedException e) {
