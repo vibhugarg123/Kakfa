@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TwitterProducer {
 
-    public static final Logger logger = LoggerFactory.getLogger(TwitterProducer.class);
+    public static final Logger logger = LoggerFactory.getLogger(TwitterProducer.class.getName());
 
     String consumerKey = "Add consumer key";
     String consumerSecret = "Add consumer secret key";
